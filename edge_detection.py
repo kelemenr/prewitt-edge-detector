@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import skimage.io as io
+from skimage.util import img_as_float
 from scipy import ndimage
 from scipy.ndimage.filters import convolve
 import os
@@ -135,6 +136,7 @@ entries = [str(i) for i in entries]
 
 for image in entries:
     image = io.imread('test_images/' + image, as_gray=True)
+    image = img_as_float(image)
     plt.imshow(image, cmap='gray')
     plt.title('Original Image')
     plt.show()
