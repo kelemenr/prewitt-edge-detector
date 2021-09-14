@@ -3,23 +3,10 @@ import matplotlib.pyplot as plt
 import skimage.io as io
 from skimage.util import img_as_float
 from scipy import ndimage
-from scipy.ndimage.filters import convolve
 import os
 
 
-def get_gaussian_kernel(size, sigma=1.0):
-    size = int(size) // 2
-    x, y = np.meshgrid(np.arange(-size, size + 1),
-                       np.arange(-size, size + 1))
-
-    # The equation for a Gaussian filter kernel
-    n = 1 / (2.0 * np.pi * sigma ** 2)
-    H = np.exp(-((x ** 2 + y ** 2) / (
-            2.0 * sigma ** 2))) * n
-    return H
-
-
-def sobel_filter(img):
+def prewitt_filter(img):
     # Sobel kernels Gx, Gy
     Gx = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]])
     Gy = np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]])
@@ -67,68 +54,14 @@ def non_maximum_suppression(img, gradient):
     return suppressed_image
 
 
-def double_threshold(img, th1=0.05, th2=0.1):
-    weak_pixels = np.array(25)
-    strong_pixels = np.array(255)
+def get_edges(img):
+    # 1. Emphasising edges
+    gradient, theta = prewitt_filter(img)
 
-    high_threshold = img.max() * th2
-    low_threshold = high_threshold * th1
-
-    thresholded_image = np.zeros(img.shape)
-    thresholded_image[np.where(img >= high_threshold)] = strong_pixels
-    thresholded_image[np.where((img <= high_threshold) & (
-            img >= low_threshold))] = weak_pixels
-    thresholded_image[np.where(img < low_threshold)] = 0
-
-    return thresholded_image, weak_pixels, strong_pixels
-
-
-def hysteresis(thresholded_image, weak_pixels, strong_pixels):
-    hysteresis_image = np.copy(thresholded_image)
-    for i in range(1, hysteresis_image.shape[0] - 1):
-        for j in range(1, hysteresis_image.shape[1] - 1):
-            # Check 8 connected neighborhood pixels (around the pixel: \
-            # top, right, bottom,
-            # left, top-right, top-left, bottom-right, bottom-left)
-            if hysteresis_image[i, j] == weak_pixels:
-                if ((hysteresis_image[i + 1, j - 1] == strong_pixels) or
-                        (hysteresis_image[i + 1, j] == strong_pixels) or
-                        (hysteresis_image[
-                             i + 1, j + 1] == strong_pixels) or
-                        (hysteresis_image[i, j - 1] == strong_pixels) or
-                        (hysteresis_image[i, j + 1] == strong_pixels) or
-                        (hysteresis_image[
-                             i - 1, j - 1] == strong_pixels) or
-                        (hysteresis_image[i - 1, j] == strong_pixels) or
-                        (hysteresis_image[
-                             i - 1, j + 1] == strong_pixels)):
-                    hysteresis_image[i, j] = 255
-                else:
-                    hysteresis_image[i, j] = 0
-    return hysteresis_image
-
-
-def canny(img):
-    # EDGE FILTERING
-    # 1. Blur image with Gaussian filter
-    blurred_image = convolve(img, get_gaussian_kernel(5, sigma=1.4))
-    # 2. Emphasising edges
-    gradient, theta = sobel_filter(blurred_image)
-
-    # EDGE LOCALISATION
-    # 3. Edge thinning
+    # 2. Edge thinning
     suppressed_image = non_maximum_suppression(gradient, theta)
-    # 4. Thresholding
-    thresholded_image, weak_pixels, strong_pixels = double_threshold(
-        suppressed_image, th1=0.08, th2=0.2)
-    # 5. Edge tracking
-    canny_edges = hysteresis(thresholded_image, weak_pixels,
-                             strong_pixels)
 
-    return (
-        blurred_image, gradient, theta, suppressed_image,
-        thresholded_image,
-        weak_pixels, strong_pixels, canny_edges)
+    return gradient, theta, suppressed_image
 
 
 entries = os.listdir('test_images/')
@@ -137,26 +70,19 @@ entries = [str(i) for i in entries]
 for image in entries:
     image = io.imread('test_images/' + image, as_gray=True)
     image = img_as_float(image)
-    plt.imshow(image, cmap='gray')
-    plt.title('Original Image')
-    plt.show()
 
-    blurred, grad, t, suppressed, thresholded, \
-        weak, strong, edges = canny(image)
+    grad, t, suppressed = get_edges(image)
 
-    fig, axs = plt.subplots(2, 2)
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
     fig.set_figheight(10)
     fig.set_figwidth(20)
 
-    axs[0, 0].imshow(grad, cmap='gray')
-    axs[0, 0].set_title('Prewitt Filter', fontsize=16)
+    ax1.imshow(image, cmap='gray')
+    ax1.set_title('Original Image', fontsize=16)
 
-    axs[0, 1].imshow(suppressed, cmap='gray')
-    axs[0, 1].set_title('Non-Maximum Suppression', fontsize=16)
+    ax2.imshow(grad, cmap='gray')
+    ax2.set_title('Prewitt Filter', fontsize=16)
 
-    axs[1, 0].imshow(thresholded, cmap='gray')
-    axs[1, 0].set_title('Thresholded Image', fontsize=16)
-
-    axs[1, 1].imshow(edges, cmap='gray')
-    axs[1, 1].set_title('Canny (After Hysteresis)', fontsize=16)
+    ax3.imshow(suppressed, cmap='gray')
+    ax3.set_title('Non-Maximum Suppression', fontsize=16)
     plt.show()
