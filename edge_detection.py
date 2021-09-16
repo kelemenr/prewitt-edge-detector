@@ -69,11 +69,11 @@ def get_edges(img):
 def main():
     try:
         path = sys.argv[1]
-        file_name = os.path.basename(path)
-        image = io.imread(str(path), as_gray=True)
     except:
         raise SystemExit(f"Usage: {sys.argv[0]} <image_path>")
 
+    file_name = os.path.basename(path)
+    image = io.imread(str(path), as_gray=True)
     image = img_as_float(image)
 
     grad, t, suppressed = get_edges(image)
