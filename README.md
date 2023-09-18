@@ -32,7 +32,11 @@ Here's an example of how to use the script:
 ```shell
    python edge_detection.py <image_path>
 ```
-The script will display the original image, the Prewitt filtered image, and the non-maximum suppressed image side by side.
+The script will display the original image, the Prewitt filtered image, and the non-maximum suppressed image side by side:
+
+<img src="https://github.com/kelemenr/prewitt-edge-detector/assets/47530064/0a4496c1-fad4-4db0-8a91-e25f983f9611" width="600"><br>
+<img src="https://github.com/kelemenr/prewitt-edge-detector/assets/47530064/badb5c7e-8bf6-4cb4-a0ba-b252da636f76" width="600"><br>
+<img src="https://github.com/kelemenr/prewitt-edge-detector/assets/47530064/7d916a86-a9e3-41e0-b9f1-bd184f154454" width="600"><br>
 
 ## Output
 
