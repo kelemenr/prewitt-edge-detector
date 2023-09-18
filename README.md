@@ -30,7 +30,7 @@ Replace <image_path> with the path to your grayscale image file.
 
 Here's an example of how to use the script:
 ```shell
-   python edge_detection.py <image_path>
+   python edge_detection.py julia.png
 ```
 The script will display the original image, the Prewitt filtered image, and the non-maximum suppressed image side by side:
 
