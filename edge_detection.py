@@ -29,7 +29,7 @@ def prewitt_filter(img):
 
 def non_maximum_suppression(img, gradient):
     suppressed_image = np.zeros(img.shape)
-    a = gradient * 180.0 / 3.14159  # convert to degrees
+    a = gradient * 180.0 / np.pi  # convert to degrees
     # Replace negative values
     a[a < 0] += 180
 
@@ -42,9 +42,9 @@ def non_maximum_suppression(img, gradient):
             elif 67.5 <= a[i, j] < 112.5:  # 90°
                 u, v = img[i + 1, j], img[i - 1, j]
             elif 112.5 <= a[i, j] < 157.5:  # 135°
-                u, v = img[i - 1, j - 1], img[i + 1, j + 1]
+                u, v = img[i - 1, j + 1], img[i + 1, j - 1]
             elif 22.5 <= a[i, j] < 67.5:  # 45°
-                u, v = img[i + 1, j - 1], img[i - 1, j + 1]
+                u, v = img[i + 1, j + 1], img[i - 1, j - 1]
 
             # Check if the pixel in the direction has a higher \
             # intensity than the current pixel
@@ -69,15 +69,17 @@ def get_edges(img):
 def main():
     try:
         path = sys.argv[1]
-    except:
+        file_name = os.path.basename(path)
+        image = io.imread(str(path), as_gray=True)
+    except (IndexError, ValueError, OSError):
         raise SystemExit(f"Usage: {sys.argv[0]} <image_path>")
 
-    file_name = os.path.basename(path)
-    image = io.imread(str(path), as_gray=True)
     image = img_as_float(image)
 
     grad, t, suppressed = get_edges(image)
 
+    grad = grad.astype(np.uint8)
+    suppressed = suppressed.astype(np.uint8)
     cv2.imwrite("output/prewitt_" + file_name, grad)
     cv2.imwrite("output/non_max_" + file_name, suppressed)
 
