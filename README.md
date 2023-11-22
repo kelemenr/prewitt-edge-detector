@@ -34,9 +34,9 @@ Here's an example of how to use the script:
 ```
 The script will display the original image, the Prewitt filtered image, and the non-maximum suppressed image side by side:
 
-<img src="https://github.com/kelemenr/prewitt-edge-detector/assets/47530064/5cfb7dca-4c1d-402f-a980-e9b2ba7f1cd5" width="600"><br>
-<img src="https://github.com/kelemenr/prewitt-edge-detector/assets/47530064/6d9972b6-ef55-4c3e-8188-b51498148582" width="600"><br>
-<img src="https://github.com/kelemenr/prewitt-edge-detector/assets/47530064/e34070db-0942-48fb-801b-25c3cb718a0a" width="600"><br>
+<img src="output/julia_plot.png" width="600"><br>
+<img src="output/circlegray_plot.png" width="600"><br>
+<img src="output/motor_plot.png" width="600"><br>
 
 ## Output
 
